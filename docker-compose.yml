@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  nest-app:
+    build: .
+    container_name: nestjs-app
+
+    ports:
+      - "3000:3000"
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - app_data:/app
+
+    networks:
+      - app-network
+
+    working_dir: /app
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    security_opt:
+      - no-new-privileges:true
+
+    read_only: true
+
+    init: true
+
+    labels:
+      project: docker-nestjs-app
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+volumes:
+  app_data:
+
+networks:
+  app-network:
+    driver: bridge
