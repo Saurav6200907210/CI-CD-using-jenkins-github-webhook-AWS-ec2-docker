@@ -37,7 +37,7 @@ pipeline {
        steps {
          emailtext{
           subject = "Deployment Notification",
-          body = "The NestJS application has been successfully deployed to server.
+          body = "The NestJS application has been successfully deployed  the server.
           http://13.235.104.54:${PROT}/"
           to = "${EMAIL}"
          }
