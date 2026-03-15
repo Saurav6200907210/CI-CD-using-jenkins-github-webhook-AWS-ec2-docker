@@ -1,98 +1,315 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 CI/CD Pipeline using Jenkins, Docker, GitHub Webhooks, and AWS EC2
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project demonstrates a **complete CI/CD pipeline** that automatically builds and deploys a **NestJS application** using **Jenkins**, **Docker**, **GitHub Webhooks**, and **AWS EC2**.
+Whenever new code is pushed to the GitHub repository, Jenkins automatically triggers the pipeline, builds a Docker image, deploys the application, and sends an email notification.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+# 📌 Project Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The goal of this project is to automate the **build, test, and deployment process** using modern DevOps tools.
 
-## Project setup
+This pipeline performs the following tasks automatically:
 
-```bash
-$ npm install
+1. Detects code changes in GitHub
+2. Triggers Jenkins pipeline using Webhooks
+3. Builds a Docker image from the application
+4. Stops and removes the previous running container
+5. Deploys a new container on AWS EC2
+6. Sends an email notification after deployment
+
+---
+
+# 🧰 Technologies Used
+
+| Tool               | Purpose                       |
+| ------------------ | ----------------------------- |
+| Jenkins            | CI/CD automation server       |
+| Docker             | Containerization              |
+| GitHub             | Source code repository        |
+| GitHub Webhooks    | Trigger Jenkins automatically |
+| AWS EC2            | Cloud server for deployment   |
+| Email Notification | Deployment alerts             |
+
+---
+
+# 🏗️ Architecture
+
+```
+Developer
+   │
+   │ Push Code
+   ▼
+GitHub Repository
+   │
+   │ Webhook Trigger
+   ▼
+Jenkins Server (AWS EC2)
+   │
+   │ Build Docker Image
+   ▼
+Docker Container
+   │
+   │ Deploy Application
+   ▼
+NestJS Application Running on EC2
+   │
+   ▼
+Email Notification Sent
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+# ⚙️ CI/CD Pipeline Workflow
 
-# watch mode
-$ npm run start:dev
+## 1️⃣ Code Push to GitHub
 
-# production mode
-$ npm run start:prod
+The developer pushes code to the **main branch** of the GitHub repository.
+
+```
+git add .
+git commit -m "update"
+git push origin main
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## 2️⃣ GitHub Webhook Trigger
 
-# e2e tests
-$ npm run test:e2e
+A webhook is configured in GitHub that sends an HTTP request to Jenkins whenever code changes occur.
 
-# test coverage
-$ npm run test:cov
+Webhook URL example:
+
+```
+http://<EC2-IP>:8080/github-webhook/
 ```
 
-## Deployment
+This automatically triggers the Jenkins pipeline.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 3️⃣ Jenkins Pipeline Starts
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+Jenkins pulls the latest code from the repository and starts the CI/CD pipeline defined in the **Jenkinsfile**.
+
+Pipeline stages include:
+
+* Clone repository
+* Build Docker image
+* Stop previous container
+* Run new container
+* Send email notification
+
+---
+
+# 🐳 Docker Usage
+
+Docker is used to containerize the NestJS application.
+
+### Dockerfile Example
+
+```
+FROM node:18
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm","run","start:prod"]
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Docker Build Command
 
-## Resources
+```
+docker build -t nestjs-image .
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+This command builds a Docker image for the application.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+# ☁️ AWS EC2 Setup
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The Jenkins server runs on an **AWS EC2 instance**.
 
-## Stay in touch
+Steps performed:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Launch EC2 instance
+2. Install Docker
+3. Install Jenkins
+4. Open required ports
 
-## License
+### Required Security Group Ports
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Port | Purpose            |
+| ---- | ------------------ |
+| 22   | SSH access         |
+| 8080 | Jenkins dashboard  |
+| 3000 | Application access |
+
+Example application URL:
+
+```
+http://<EC2-IP>:3000
+```
+
+---
+
+# 🔔 Email Notification
+
+After successful deployment, Jenkins sends an email notification to inform that the application has been deployed.
+
+Example notification message:
+
+```
+Subject: Deployment Notification
+
+The NestJS application has been successfully deployed.
+
+Access the application:
+http://<EC2-IP>:3000
+```
+
+This ensures the developer is immediately informed after deployment.
+
+---
+
+# 📜 Jenkins Pipeline (Jenkinsfile)
+
+```
+pipeline {
+
+   environment {
+     CONTAINER_NAME = "nestjs-app"
+     IMAGE_NAME = "nestjs-image"
+     EMAIL = "example@gmail.com"
+     PORT = "3000"
+   }
+
+   stages {
+
+     stage('Clone Repo'){
+        steps{
+          git branch: 'main', url: 'YOUR_GITHUB_REPO_URL'
+        }
+     }
+
+     stage('Build Docker Image'){
+        steps{
+          sh "docker build -t ${IMAGE_NAME} ."
+        }
+     }
+
+     stage('Stop and Remove Previous Container'){
+        steps{
+          sh '''
+          docker stop ${CONTAINER_NAME} || true
+          docker rm ${CONTAINER_NAME} || true
+          '''
+        }
+     }
+
+     stage('Run Docker Container'){
+        steps{
+          sh '''
+          docker run -d -p ${PORT}:${PORT} --name ${CONTAINER_NAME} ${IMAGE_NAME}
+          '''
+        }
+     }
+
+     stage('Send Email Notification'){
+        steps{
+          emailext(
+            subject: "Deployment Notification",
+            body: "Application deployed successfully. http://<EC2-IP>:3000",
+            to: "${EMAIL}"
+          )
+        }
+     }
+
+   }
+}
+```
+
+---
+
+# 📂 Project Structure
+
+```
+project
+│
+├── Dockerfile
+├── Jenkinsfile
+├── package.json
+├── src
+│
+└── README.md
+```
+
+---
+
+# 🎯 Key Features
+
+✔ Automated CI/CD pipeline
+✔ Dockerized NestJS application
+✔ GitHub Webhook trigger
+✔ Automatic deployment on AWS EC2
+✔ Email notification after deployment
+✔ Zero manual deployment effort
+
+---
+
+# 🚀 How to Run the Project
+
+### 1️⃣ Clone repository
+
+```
+git clone <repo-url>
+cd project
+```
+
+### 2️⃣ Build Docker Image
+
+```
+docker build -t nestjs-image .
+```
+
+### 3️⃣ Run Docker Container
+
+```
+docker run -d -p 3000:3000 nestjs-image
+```
+
+### 4️⃣ Access Application
+
+```
+http://localhost:3000
+```
+
+---
+
+# 📚 Learning Outcomes
+
+Through this project, you will understand:
+
+* CI/CD pipeline implementation
+* Docker containerization
+* Jenkins automation
+* GitHub webhook integration
+* Cloud deployment using AWS EC2
+* Automated notifications
+
+---
+
+# 👨‍💻 Author
+
+**Saurav Kumar**
+
+DevOps / Cloud Enthusiast
+B.Tech Computer Science Student
